@@ -34,6 +34,7 @@ const vectorLayer: Ref<VectorLayer<VectorSource> | null> = ref(null)
 const canvasLayer = ref<any>(null)
 const imageArray = ref<Float32Array>()
 
+// chroma.js
 const colors: any = chroma
   .scale([
     'rgb(149, 137, 211)',
@@ -56,10 +57,12 @@ const colors: any = chroma
   ])
   .domain([-20, -10, 0, 10, 20, 30, 40])
 
+// 渲染地图
 const initMap = () => {
   map.value = new Map({
     target: 'meteo-map',
     layers: [
+      // 使用高德地图瓦片服务
       new TileLayer({
         source: new XYZ({
           url: 'http://webst0{1-4}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}'
@@ -73,7 +76,7 @@ const initMap = () => {
       minZoom: 7,
       enableRotation: false,
       center: [117.2346, 31.6267],
-      extent: [111.5, 29.3, 123.8, 34.8]
+      extent: [111.5, 29.3, 123.8, 34.8] // 限制画面范围&气象渲染范围
     })
   })
 
@@ -83,8 +86,10 @@ const initMap = () => {
   })
   map.value.addLayer(canvasLayer.value)
 
+  // 气象图层初始化
   initMeteo()
 
+  // 安徽省地图边界轮廓
   const vectorSource = new VectorSource({
     format: new GeoJSON(),
     url: '/json/340000.json' // 替换为你的地理数据文件路径
@@ -106,9 +111,11 @@ const initMap = () => {
 
   map.value.addLayer(vectorLayer.value)
 
+  // 监听点击地图事件
   map.value.on('click', () => {})
 }
 
+// 气象图册数据初始化
 const initMeteo = () => {
   fetch('/meteo/temperature.txt')
     .then((response) => {
@@ -124,6 +131,8 @@ const initMeteo = () => {
       console.log('Error:', error)
     })
 }
+
+// 绘制气象图册
 const matrixFunction = (data: any) => {
   const img = new Image()
   img.crossOrigin = 'anonymous'
@@ -137,6 +146,7 @@ const matrixFunction = (data: any) => {
     const lonRange = [111.5, 123.8]
     const latRange = [29.3, 34.8]
 
+    // 处理超出范围的数据
     if (lon > 123.8 || lon < 111.5 || lat > 34.8 || lat < 29.3) {
       return null
     }
@@ -177,7 +187,7 @@ const matrixFunction = (data: any) => {
     new ImageCanvasSource({
       canvasFunction,
       ratio: 1,
-      projection: 'EPSG:4326'
+      projection: polarProjection
     })
   )
 }
@@ -206,7 +216,6 @@ const canvasFunction = (
         projection
       )
       const value = imageArray.value?.getValue(coord[0], coord[1])
-      // const value = getMeteoValue(coord[0], coord[1])
       newarr.push({ lo: [coord[0], coord[1]], value })
       ctx!.fillStyle = colors(value).css()
       ctx!.fillRect(i - halfdx, j - halfdx, dx, dx)
