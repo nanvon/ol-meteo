@@ -1,46 +1,33 @@
 # ol-meteo
 
-This template should help get you started developing with Vue 3 in Vite.
+OpenLayers 仿 Windy 气象可视化。Fork from [ccmostmosthandsome/olMeteo](https://github.com/ccmostmosthandsome/olMeteo)
 
-## Recommended IDE Setup
+## 思路
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+1. 使用 Python 将气象格点数据转换成灰度图
+   - 首先获取安徽省范围的四个顶点的经纬度，确定数据与渲染范围；
+   - 从地图左上角开始，每隔 11km 取一个点，取完一行就换行，获取该点的气象数据；
+   - 根据本项目的`[111.5, 29.3, 123.8, 34.8]`范围，可以得到 55\*29 的矩阵数据；
+   - 使用 Python 对数据进行超分辨率处理，得到一个 440\*232 的矩阵数据
+2. 前端处理矩阵数据，渲染上色
+   - 将矩阵 txt 数据转成 Float32Array 数组；
+   - 使用 OpenLayers 的 canvasFunction 方法，将视图上点的位置坐标转成经纬度；
+   - 考虑到视图的范围`[111.5, 29.3, 123.8, 34.8]`，将经纬度转换成栅格坐标；
+   - 获取周围四个点的坐标，利用双线性插值算法计算出当前经纬度的气象要素值；
+   - 将灰度值映射到设定好的颜色数组中，并绘制到地图图层上
 
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
-
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
-
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
+## 运行
 
 ```sh
 pnpm install
-```
 
-### Compile and Hot-Reload for Development
-
-```sh
 pnpm dev
 ```
 
-### Type-Check, Compile and Minify for Production
+## 参考
 
-```sh
-pnpm build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-pnpm lint
-```
+- [ccmostmosthandsome/olMeteo](https://github.com/ccmostmosthandsome/olMeteo)
+- [chroma.js](https://github.com/gka/chroma.js)
+- [气象可视化之windy方案的技术分析](https://mp.weixin.qq.com/s/4oCJQU69tsdnPSSLQdiEMg)
+- [格点数据应用之二 WebGIS等值面可视化篇](https://zhuanlan.zhihu.com/p/347293918)
+- [GRIB学习笔记：GRIB2要素场转换为图片](https://blog.perillaroc.wang/post/2019/2019-05-18-grib-notebook-convert-grib2-to-png/)
