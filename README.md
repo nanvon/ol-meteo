@@ -2,6 +2,10 @@
 
 OpenLayers 仿 Windy 气象可视化。Fork from [ccmostmosthandsome/olMeteo](https://github.com/ccmostmosthandsome/olMeteo)
 
+## 效果图
+
+![效果图](public/meteo.png)
+
 ## 思路
 
 1. 使用 Python 将气象格点数据转换成灰度图
